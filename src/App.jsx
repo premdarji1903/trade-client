@@ -1,4 +1,5 @@
-import ClientForm from './components/clientForm'
+import ClientForm from "./ClientForm"
+
 
 function App() {
 

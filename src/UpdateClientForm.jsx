@@ -5,6 +5,7 @@ export default function UpdateClientForm() {
   const [formData, setFormData] = useState({
     clientId: "",
     token: "",
+    trade: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export default function UpdateClientForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.clientId || !formData.token) {
+    if (!formData.clientId || !(formData.token || formData.trade)) {
       setMessage("⚠️ Client ID and Token are required.");
       setMessageType("error");
       return;
@@ -33,11 +34,14 @@ export default function UpdateClientForm() {
 
     try {
       const res = await fetch(
-        `https://trade-client-server.onrender.com/client/${formData.clientId}`,
+        `http://localhost:3000/client/${formData.clientId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: formData.token }),
+          body: JSON.stringify({
+            token: formData.token,
+            trade: formData.trade,
+          }),
         }
       );
 
@@ -85,6 +89,20 @@ export default function UpdateClientForm() {
               onChange={handleChange}
               style={styles.input}
             />
+          </div>
+          <div style={styles.row}>
+            <label style={styles.label}>Trade</label>
+            <select
+              name="trade"
+              value={formData.trade}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option value="">Select Trade</option>
+              <option value="nifty">Nifty</option>
+              <option value="naturalgas">Natural Gas</option>
+              <option value="both">Both</option>
+            </select>
           </div>
           <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "Updating..." : "Update Token"}

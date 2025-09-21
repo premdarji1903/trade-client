@@ -5,6 +5,7 @@ export default function ClientForm() {
     clientName: "",
     clientId: "",
     token: "",
+    trade: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,12 @@ export default function ClientForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.clientName || !formData.clientId || !formData.token) {
+    if (
+      !formData.clientName ||
+      !formData.clientId ||
+      !formData.token ||
+      !formData.trade
+    ) {
       setMessage("⚠️ Please fill in all fields.");
       setMessageType("error");
       return;
@@ -32,11 +38,14 @@ export default function ClientForm() {
     setMessage("");
 
     try {
-      const res = await fetch("https://trade-client-server.onrender.com/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        "https://trade-client-server.onrender.com/clients",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await res.json();
 
@@ -48,7 +57,7 @@ export default function ClientForm() {
         setMessage(`❌ ${data.message || "Failed to add client"}`);
         setMessageType("error");
       }
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       setMessage("❌ Network error. Please try again.");
       setMessageType("error");
@@ -94,6 +103,20 @@ export default function ClientForm() {
               onChange={handleChange}
               style={styles.input}
             />
+          </div>
+          <div style={styles.row}>
+            <label style={styles.label}>Trade</label>
+            <select
+              name="trade"
+              value={formData.trade}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option value="">Select Trade</option>
+              <option value="nifty">Nifty</option>
+              <option value="naturalgas">Natural Gas</option>
+              <option value="both">Both</option>
+            </select>
           </div>
           <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "Saving..." : "Save Client"}

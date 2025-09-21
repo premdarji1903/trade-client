@@ -34,7 +34,7 @@ export default function UpdateClientForm() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/client/${formData.clientId}`,
+        `https://trade-client-server.onrender.com/client/${formData.clientId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },

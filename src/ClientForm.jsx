@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ClientRegistration() {
   const [step, setStep] = useState(1);
@@ -13,14 +13,52 @@ export default function ClientRegistration() {
     mobileNumber: "",
     email: "",
     clientId: "",
-    trade: [], // Array to hold selected trades
+    trade: [],
     api_key: "",
     api_secret: "",
   });
 
-  const tradeOptions = ["Nifty", "Natural Gas", "Crude Oil"]; // All available trade options
+  const [amount, setAmount] = useState(0);
 
-  // Handle text input change
+  const tradeOptions = ["Nifty", "Natural Gas", "Crude Oil"];
+
+  // Function to calculate amount based on selected trades
+  const calculateAmount = (selectedTrades) => {
+    const trades = [...selectedTrades].sort();
+    const key = trades.join("+");
+
+    switch (key) {
+      case "Nifty":
+        return 3000;
+      case "Natural Gas":
+        return 2000;
+      case "Crude Oil":
+        return 2000;
+      case "Nifty+Natural Gas":
+        return 4500;
+      case "Natural Gas+Nifty":
+        return 4500;
+      case "Nifty+Crude Oil":
+        return 4500;
+      case "Crude Oil+Nifty":
+        return 4500;
+      case "Crude Oil+Natural Gas":
+        return 4000; // optional, can adjust if needed
+      case "Crude Oil+Natural Gas+Nifty":
+      case "Natural Gas+Crude Oil+Nifty":
+      case "Nifty+Crude Oil+Natural Gas":
+        return 5500;
+      default:
+        return 0;
+    }
+  };
+
+  // Update amount automatically when trades change
+  useEffect(() => {
+    setAmount(calculateAmount(formData.trade));
+  }, [formData.trade]);
+
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -29,23 +67,29 @@ export default function ClientRegistration() {
     }));
   };
 
-  // Handle checkbox change for trades
+  // Handle checkbox trade change
   const handleTradeCheckbox = (e) => {
     const { value, checked } = e.target;
     setFormData((prev) => {
       const newTrade = checked
-        ? [...prev.trade, value] // add if checked
-        : prev.trade.filter((t) => t !== value); // remove if unchecked
+        ? [...prev.trade, value]
+        : prev.trade.filter((t) => t !== value);
       return { ...prev, trade: newTrade };
     });
   };
 
-  // Step 1: API call and move to payment
+  // Step 1: Create client
   const handleNextStep = async (e) => {
     e.preventDefault();
     const { clientName, mobileNumber, email, clientId, trade } = formData;
 
-    if (!clientName || !mobileNumber || !email || !clientId || trade.length === 0) {
+    if (
+      !clientName ||
+      !mobileNumber ||
+      !email ||
+      !clientId ||
+      trade.length === 0
+    ) {
       setMessage("⚠️ Please fill all fields.");
       setMessageType("error");
       return;
@@ -54,11 +98,21 @@ export default function ClientRegistration() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("https://trade-client-server.onrender.com/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientName, mobileNumber, email, clientId, trade }),
-      });
+      const res = await fetch(
+        "https://trade-client-server.onrender.com/clients",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientName,
+            mobileNumber,
+            email,
+            clientId,
+            trade,
+            amount,
+          }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
@@ -121,7 +175,7 @@ export default function ClientRegistration() {
           api_key: "",
           api_secret: "",
         });
-        setClientDbId(null); // reset for next registration
+        setClientDbId(null);
       } else {
         setMessage(`❌ ${data.message || "Failed to save API keys"}`);
         setMessageType("error");
@@ -139,7 +193,7 @@ export default function ClientRegistration() {
       <div style={styles.container}>
         <h2 style={styles.title}>Client Registration</h2>
 
-        {/* STEP 1: BASIC DETAILS */}
+        {/* STEP 1 */}
         {step === 1 && (
           <form style={styles.form} onSubmit={handleNextStep}>
             <input
@@ -205,17 +259,28 @@ export default function ClientRegistration() {
               </div>
             </div>
 
+            {/* Display dynamic amount */}
+            <p
+              style={{
+                color: "#1976D2",
+                marginTop: "10px",
+                fontWeight: "bold",
+              }}
+            >
+              💰 Amount: ₹{amount || 0}
+            </p>
+
             <button type="submit" style={styles.button} disabled={loading}>
               {loading ? "Saving..." : "Next →"}
             </button>
           </form>
         )}
 
-        {/* STEP 2: MOCK PAYMENT UI */}
+        {/* STEP 2 */}
         {step === 2 && (
           <div style={styles.paymentBox}>
             <h3>💳 Registration Payment</h3>
-            <p style={{ color: "#555" }}>Amount: ₹499.00</p>
+            <p style={{ color: "#555" }}>Amount: ₹{amount}</p>
 
             <div style={styles.fakeRazorBox}>
               <p style={{ fontSize: "14px", color: "#777" }}>
@@ -234,7 +299,7 @@ export default function ClientRegistration() {
           </div>
         )}
 
-        {/* STEP 3: API KEYS */}
+        {/* STEP 3 */}
         {step === 3 && (
           <form style={styles.form} onSubmit={handleFinalSubmit}>
             <input

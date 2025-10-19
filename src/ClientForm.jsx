@@ -47,7 +47,7 @@ export default function ClientRegistration() {
       case "Crude Oil+Natural Gas+Nifty":
       case "Natural Gas+Crude Oil+Nifty":
       case "Nifty+Crude Oil+Natural Gas":
-        return 5500;
+        return 6000;
       default:
         return 0;
     }

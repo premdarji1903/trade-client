@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
+import "./TradeTechLandingPage.css";
 
 export default function ClientRegistration() {
   const [step, setStep] = useState(1);
@@ -188,177 +189,203 @@ export default function ClientRegistration() {
     }
   };
 
-  return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <h2 style={styles.title}>Client Registration</h2>
+return (
+  <div style={styles.page}>
+    {/* ---------- Navbar ---------- */}
+    <header style={styles.navbar}>
+      <div
+        style={styles.logoContainer}
+        onClick={() => (window.location.href = "/")}
+      >
+        <img
+          src="/images/image.png"
+          alt="TradeTech Logo"
+          style={styles.logoImg}
+        />
+        <span style={styles.logoText}>TradeTech Solutions</span>
+      </div>
+      <nav>
+        <a href="/" style={styles.navLink}>
+          Home
+        </a>
+      </nav>
+    </header>
 
-        {/* STEP 1 */}
-        {step === 1 && (
-          <form style={styles.form} onSubmit={handleNextStep}>
-            <input
-              type="text"
-              name="clientName"
-              placeholder="Client Name"
-              value={formData.clientName}
-              onChange={handleChange}
-              style={styles.input}
-            />
-            <input
-              type="text"
-              name="mobileNumber"
-              placeholder="Mobile Number"
-              value={formData.mobileNumber}
-              onChange={handleChange}
-              style={styles.input}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              style={styles.input}
-            />
-            <input
-              type="text"
-              name="clientId"
-              placeholder="Client ID"
-              value={formData.clientId}
-              onChange={handleChange}
-              style={styles.input}
-            />
+    {/* ---------- Registration Container ---------- */}
+    <div style={styles.container}>
+      <h2 style={styles.title}>Client Registration</h2>
 
-            <div>
-              <label style={{ fontSize: 14, color: "#555" }}>
-                Select Trade(s):
-              </label>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "8px",
-                  marginTop: "5px",
-                }}
-              >
-                {tradeOptions.map((option) => (
-                  <label
-                    key={option}
-                    style={{ fontSize: "14px", color: "#333" }}
-                  >
-                    <input
-                      type="checkbox"
-                      value={option}
-                      checked={formData.trade.includes(option)}
-                      onChange={handleTradeCheckbox}
-                      style={{ marginRight: "8px" }}
-                    />
-                    {option}
-                  </label>
-                ))}
-              </div>
-            </div>
+      {/* STEP 1 */}
+      {step === 1 && (
+        <form style={styles.form} onSubmit={handleNextStep}>
+          <input
+            type="text"
+            name="clientName"
+            placeholder="Client Name"
+            value={formData.clientName}
+            onChange={handleChange}
+            style={styles.input}
+          />
+          <input
+            type="text"
+            name="mobileNumber"
+            placeholder="Mobile Number"
+            value={formData.mobileNumber}
+            onChange={handleChange}
+            style={styles.input}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            style={styles.input}
+          />
+          <input
+            type="text"
+            name="clientId"
+            placeholder="Client ID"
+            value={formData.clientId}
+            onChange={handleChange}
+            style={styles.input}
+          />
 
-            {/* Display dynamic amount */}
-            <p
+          <div>
+            <label style={{ fontSize: 14, color: "#555" }}>
+              Select Trade(s):
+            </label>
+            <div
               style={{
-                color: "#1976D2",
-                marginTop: "10px",
-                fontWeight: "bold",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+                marginTop: "5px",
               }}
             >
-              💰 Amount: ₹{amount || 0}
-            </p>
-
-            <button type="submit" style={styles.button} disabled={loading}>
-              {loading ? "Saving..." : "Next →"}
-            </button>
-          </form>
-        )}
-
-        {/* STEP 2 */}
-        {step === 2 && (
-          <div style={styles.paymentBox}>
-            <h3>💳 Registration Payment</h3>
-            <p style={{ color: "#555" }}>Amount: ₹{amount}</p>
-
-            <div style={styles.fakeRazorBox}>
-              <p style={{ fontSize: "14px", color: "#777" }}>
-                [Razorpay Checkout UI Placeholder]
-              </p>
-            </div>
-
-            <div style={styles.paymentButtons}>
-              <button onClick={() => setStep(1)} style={styles.secondaryBtn}>
-                ← Back
-              </button>
-              <button onClick={() => setStep(3)} style={styles.button}>
-                Next →
-              </button>
+              {tradeOptions.map((option) => (
+                <label key={option} style={{ fontSize: "14px", color: "#333" }}>
+                  <input
+                    type="checkbox"
+                    value={option}
+                    checked={formData.trade.includes(option)}
+                    onChange={handleTradeCheckbox}
+                    style={{ marginRight: "8px" }}
+                  />
+                  {option}
+                </label>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* STEP 3 */}
-        {step === 3 && (
-          <form style={styles.form} onSubmit={handleFinalSubmit}>
-            <input
-              type="text"
-              name="api_key"
-              placeholder="Enter API Key"
-              value={formData.api_key}
-              onChange={handleChange}
-              style={styles.input}
-            />
-            <input
-              type="text"
-              name="api_secret"
-              placeholder="Enter API Secret"
-              value={formData.api_secret}
-              onChange={handleChange}
-              style={styles.input}
-            />
-            <div style={styles.paymentButtons}>
-              <button onClick={() => setStep(2)} style={styles.secondaryBtn}>
-                ← Back
-              </button>
-              <button type="submit" style={styles.button} disabled={loading}>
-                {loading ? "Saving..." : "Finish Registration"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {message && (
           <p
-            style={{
-              ...styles.message,
-              color: messageType === "success" ? "#2E7D32" : "#D32F2F",
-            }}
+            style={{ color: "#1976D2", marginTop: "10px", fontWeight: "bold" }}
           >
-            {message}
+            💰 Amount: ₹{amount || 0}
           </p>
-        )}
-      </div>
+
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Saving..." : "Next →"}
+          </button>
+        </form>
+      )}
+
+      {/* STEP 2 */}
+      {step === 2 && (
+        <div style={styles.paymentBox}>
+          <h3>💳 Registration Payment</h3>
+          <p style={{ color: "#555" }}>Amount: ₹{amount}</p>
+
+          <div style={styles.fakeRazorBox}>
+            <p style={{ fontSize: "14px", color: "#777" }}>
+              [Razorpay Checkout UI Placeholder]
+            </p>
+          </div>
+
+          <div style={styles.paymentButtons}>
+            <button onClick={() => setStep(1)} style={styles.secondaryBtn}>
+              ← Back
+            </button>
+            <button onClick={() => setStep(3)} style={styles.button}>
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 3 */}
+      {step === 3 && (
+        <form style={styles.form} onSubmit={handleFinalSubmit}>
+          <input
+            type="text"
+            name="api_key"
+            placeholder="Enter API Key"
+            value={formData.api_key}
+            onChange={handleChange}
+            style={styles.input}
+          />
+          <input
+            type="text"
+            name="api_secret"
+            placeholder="Enter API Secret"
+            value={formData.api_secret}
+            onChange={handleChange}
+            style={styles.input}
+          />
+          <div style={styles.paymentButtons}>
+            <button onClick={() => setStep(2)} style={styles.secondaryBtn}>
+              ← Back
+            </button>
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? "Saving..." : "Finish Registration"}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {message && (
+        <p
+          style={{
+            ...styles.message,
+            color: messageType === "success" ? "#2E7D32" : "#D32F2F",
+          }}
+        >
+          {message}
+        </p>
+      )}
     </div>
-  );
+
+    {/* ---------- Footer ---------- */}
+    <footer style={styles.footer}>
+      <img src="/images/image.png" alt="TradeTech Logo" style={styles.logo} />
+      <p style={styles.companyName}>TradeTech Solutions</p>
+      <p style={styles.description}>
+        Empowering traders with next-gen Dhan Algo Trading Automation.
+      </p>
+      <p style={styles.copyright}>
+        © 2025 TradeTech Solutions. All rights reserved.
+      </p>
+    </footer>
+  </div>
+);
 }
 
+// ---------- Inline Styles ----------
 const styles = {
   page: {
-    height: "100vh",
+    minHeight: "100vh",
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "column",
     background: "#f8f9fb",
   },
   container: {
     width: "100%",
-    maxWidth: "500px",
+    maxWidth: "700px",
     background: "#fff",
     padding: "30px",
     borderRadius: "10px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    margin: "50px auto",
   },
   title: {
     textAlign: "center",
@@ -410,5 +437,79 @@ const styles = {
   paymentButtons: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  navbar: {
+    background: "#ffffff", // White background
+    color: "#000",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "15px 40px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+  },
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+  },
+  logoImg: {
+    width: "45px",
+    height: "45px",
+    marginRight: "10px",
+    borderRadius: "8px",
+  },
+  logoText: {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#1976D2",
+  },
+  navLink: {
+    color: "#000",
+    marginRight: "20px",
+    textDecoration: "none",
+    fontSize: "15px",
+    fontWeight: "500",
+  },
+  subscribeBtn: {
+    background: "#1976D2",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
+    transition: "0.3s ease",
+  },
+  footer: {
+    marginTop: "60px",
+    background: "#f8f9fb",
+    color: "#ddd",
+    textAlign: "center",
+    padding: "40px 20px",
+    borderTop: "1px solid #e0e0e0",
+  },
+  logo: {
+    width: "60px",
+    height: "60px",
+    marginBottom: "10px",
+    borderRadius: "8px",
+  },
+  companyName: {
+    fontWeight: 600,
+    color: "#1976D2",
+    marginBottom: "6px",
+  },
+  description: {
+    fontSize: "14px",
+    color: "#555",
+    marginBottom: "10px",
+  },
+  copyright: {
+    fontSize: "11px",
+    color: "#777",
+    marginTop: "8px",
   },
 };

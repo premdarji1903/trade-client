@@ -113,20 +113,20 @@ export default function TradeTechLandingPage() {
       {/* Features Section */}
       <section className="features">
         <div className="feature-card">
-          <h3>Nifty Trading</h3>
+          <h3>Nifty Option Trading</h3>
           <p>
             Execute trades in Nifty automatically using precise algo signals.
           </p>
         </div>
         <div className="feature-card">
-          <h3>Natural Gas</h3>
+          <h3>Natural Gas Option</h3>
           <p>
             Trade Natural Gas seamlessly with our intelligent Dhan-based
             automation.
           </p>
         </div>
         <div className="feature-card">
-          <h3>Crude Oil</h3>
+          <h3>Crude Oil Option</h3>
           <p>
             Automate your Crude Oil strategies — let our algo handle your
             entries and exits.

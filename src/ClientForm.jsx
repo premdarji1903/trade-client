@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import "./TradeTechLandingPage.css";
-
+import axios from "axios";
 export default function ClientRegistration() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,48 @@ export default function ClientRegistration() {
   useEffect(() => {
     setAmount(calculateAmount(formData.trade));
   }, [formData.trade]);
+  const [qrUrl, setQrUrl] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [timer, setTimer] = useState(60); // 1 minute
+  const [showPopup, setShowPopup] = useState(false);
+  useEffect(() => {
+    if (step === 2) {
+      generateQr();
+      startTimer();
+    }
+  }, [step]);
 
+  const generateQr = async () => {
+    try {
+      setQrLoading(true);
+      const response = await axios.post(
+        "https://trade-client-server.onrender.com/generate-qr",
+        { amount, note: "Registration Payment" },
+        { responseType: "blob" }
+      );
+      const qrImageUrl = URL.createObjectURL(response.data);
+      setQrUrl(qrImageUrl);
+    } catch (err) {
+      console.error("QR generation failed:", err);
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  const startTimer = () => {
+    setIsButtonDisabled(true);
+    setTimer(60);
+    let countdown = 60;
+    const interval = setInterval(() => {
+      countdown -= 1;
+      setTimer(countdown);
+      if (countdown <= 0) {
+        clearInterval(interval);
+        setIsButtonDisabled(false); // ✅ Enable button after 1 minute
+      }
+    }, 1000);
+  };
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -151,6 +193,7 @@ export default function ClientRegistration() {
     }
 
     setLoading(true);
+    setShowPopup(true);
     setMessage("");
     try {
       const res = await fetch(
@@ -189,185 +232,242 @@ export default function ClientRegistration() {
     }
   };
 
-return (
-  <div style={styles.page}>
-    {/* ---------- Navbar ---------- */}
-    <header style={styles.navbar}>
-      <div
-        style={styles.logoContainer}
-        onClick={() => (window.location.href = "/")}
-      >
-        <img
-          src="/images/image.png"
-          alt="TradeTech Logo"
-          style={styles.logoImg}
-        />
-        <span style={styles.logoText}>TradeTech Solutions</span>
-      </div>
-      <nav>
-        <a href="/" style={styles.navLink}>
-          Home
-        </a>
-      </nav>
-    </header>
+  return (
+    <div style={styles.page}>
+      {/* ---------- Navbar ---------- */}
+      <header style={styles.navbar}>
+        <div
+          style={styles.logoContainer}
+          onClick={() => (window.location.href = "/")}
+        >
+          <img
+            src="/images/image.png"
+            alt="TradeTech Logo"
+            style={styles.logoImg}
+          />
+          <span style={styles.logoText}>TradeTech Solutions</span>
+        </div>
+        <nav>
+          <a href="/" style={styles.navLink}>
+            Home
+          </a>
+        </nav>
+      </header>
 
-    {/* ---------- Registration Container ---------- */}
-    <div style={styles.container}>
-      <h2 style={styles.title}>Client Registration</h2>
+      {/* ---------- Registration Container ---------- */}
+      <div style={styles.container}>
+        <h2 style={styles.title}>Client Registration</h2>
 
-      {/* STEP 1 */}
-      {step === 1 && (
-        <form style={styles.form} onSubmit={handleNextStep}>
-          <input
-            type="text"
-            name="clientName"
-            placeholder="Client Name"
-            value={formData.clientName}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            name="mobileNumber"
-            placeholder="Mobile Number"
-            value={formData.mobileNumber}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            name="clientId"
-            placeholder="Client ID"
-            value={formData.clientId}
-            onChange={handleChange}
-            style={styles.input}
-          />
+        {/* STEP 1 */}
+        {step === 1 && (
+          <form style={styles.form} onSubmit={handleNextStep}>
+            <input
+              type="text"
+              name="clientName"
+              placeholder="Client Name"
+              value={formData.clientName}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <input
+              type="text"
+              name="mobileNumber"
+              placeholder="Mobile Number"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <input
+              type="text"
+              name="clientId"
+              placeholder="Client ID"
+              value={formData.clientId}
+              onChange={handleChange}
+              style={styles.input}
+            />
 
-          <div>
-            <label style={{ fontSize: 14, color: "#555" }}>
-              Select Trade(s):
-            </label>
-            <div
+            <div>
+              <label style={{ fontSize: 14, color: "#555" }}>
+                Select Trade(s):
+              </label>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  marginTop: "5px",
+                }}
+              >
+                {tradeOptions.map((option) => (
+                  <label
+                    key={option}
+                    style={{ fontSize: "14px", color: "#333" }}
+                  >
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={formData.trade.includes(option)}
+                      onChange={handleTradeCheckbox}
+                      style={{ marginRight: "8px" }}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <p
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                marginTop: "5px",
+                color: "#1976D2",
+                marginTop: "10px",
+                fontWeight: "bold",
               }}
             >
-              {tradeOptions.map((option) => (
-                <label key={option} style={{ fontSize: "14px", color: "#333" }}>
-                  <input
-                    type="checkbox"
-                    value={option}
-                    checked={formData.trade.includes(option)}
-                    onChange={handleTradeCheckbox}
-                    style={{ marginRight: "8px" }}
-                  />
-                  {option}
-                </label>
-              ))}
+              💰 Amount: ₹{amount || 0}
+            </p>
+
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? "Saving..." : "Next →"}
+            </button>
+          </form>
+        )}
+
+        {/* STEP 2 */}
+        {step === 2 && (
+          <div style={styles.paymentBox}>
+            <h3>💳 Registration Payment</h3>
+            <p style={{ color: "#555" }}>Amount: ₹{amount}</p>
+
+            {/* QR Section */}
+            {qrLoading ? (
+              <p>Generating QR Code...</p>
+            ) : qrUrl ? (
+              <div>
+                <h4>📷 Scan this UPI QR to Pay</h4>
+                <img
+                  src={qrUrl}
+                  alt="UPI Payment QR"
+                  width="220"
+                  height="220"
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    marginTop: "10px",
+                  }}
+                />
+                <p style={{ marginTop: "10px", color: "#777" }}>
+                  Please complete the payment within <strong>{timer}</strong>{" "}
+                  seconds
+                </p>
+              </div>
+            ) : (
+              <p>QR Code not available</p>
+            )}
+
+            <div style={styles.paymentButtons}>
+              <button onClick={() => setStep(1)} style={styles.secondaryBtn}>
+                ← Back
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                style={{
+                  ...styles.button,
+                  opacity: isButtonDisabled ? 0.5 : 1,
+                  cursor: isButtonDisabled ? "not-allowed" : "pointer",
+                }}
+                disabled={isButtonDisabled}
+              >
+                Next →
+              </button>
             </div>
           </div>
+        )}
 
+        {/* STEP 3 */}
+        {step === 3 && (
+          <form style={styles.form} onSubmit={handleFinalSubmit}>
+            <input
+              type="text"
+              name="api_key"
+              placeholder="Enter API Key"
+              value={formData.api_key}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <input
+              type="text"
+              name="api_secret"
+              placeholder="Enter API Secret"
+              value={formData.api_secret}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <div style={styles.paymentButtons}>
+              <button onClick={() => setStep(2)} style={styles.secondaryBtn}>
+                ← Back
+              </button>
+              <button type="submit" style={styles.button} disabled={loading}>
+                {loading ? "Saving..." : "Finish Registration"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {message && (
           <p
-            style={{ color: "#1976D2", marginTop: "10px", fontWeight: "bold" }}
+            style={{
+              ...styles.message,
+              color: messageType === "success" ? "#2E7D32" : "#D32F2F",
+            }}
           >
-            💰 Amount: ₹{amount || 0}
+            {message}
           </p>
-
-          <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Saving..." : "Next →"}
-          </button>
-        </form>
-      )}
-
-      {/* STEP 2 */}
-      {step === 2 && (
-        <div style={styles.paymentBox}>
-          <h3>💳 Registration Payment</h3>
-          <p style={{ color: "#555" }}>Amount: ₹{amount}</p>
-
-          <div style={styles.fakeRazorBox}>
-            <p style={{ fontSize: "14px", color: "#777" }}>
-              [Razorpay Checkout UI Placeholder]
+        )}
+      </div>
+      {showPopup && (
+        <div style={popupStyles.overlay}>
+          <div style={popupStyles.modal}>
+            <h3>🎉 Registration Completed!</h3>
+            <p style={{ color: "#555", marginTop: "10px" }}>
+              Your registration has been submitted successfully.
             </p>
-          </div>
-
-          <div style={styles.paymentButtons}>
-            <button onClick={() => setStep(1)} style={styles.secondaryBtn}>
-              ← Back
-            </button>
-            <button onClick={() => setStep(3)} style={styles.button}>
-              Next →
+            <p style={{ color: "#777" }}>
+              You’ll be eligible to trade once the admin reviews and approves
+              your account.
+            </p>
+            <button
+              style={popupStyles.button}
+              onClick={() => {
+                setShowPopup(false);
+                setStep(1); // optionally go back to start page
+              }}
+            >
+              OK
             </button>
           </div>
         </div>
       )}
-
-      {/* STEP 3 */}
-      {step === 3 && (
-        <form style={styles.form} onSubmit={handleFinalSubmit}>
-          <input
-            type="text"
-            name="api_key"
-            placeholder="Enter API Key"
-            value={formData.api_key}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            name="api_secret"
-            placeholder="Enter API Secret"
-            value={formData.api_secret}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          <div style={styles.paymentButtons}>
-            <button onClick={() => setStep(2)} style={styles.secondaryBtn}>
-              ← Back
-            </button>
-            <button type="submit" style={styles.button} disabled={loading}>
-              {loading ? "Saving..." : "Finish Registration"}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {message && (
-        <p
-          style={{
-            ...styles.message,
-            color: messageType === "success" ? "#2E7D32" : "#D32F2F",
-          }}
-        >
-          {message}
+      {/* ---------- Footer ---------- */}
+      <footer style={styles.footer}>
+        <img src="/images/image.png" alt="TradeTech Logo" style={styles.logo} />
+        <p style={styles.companyName}>TradeTech Solutions</p>
+        <p style={styles.description}>
+          Empowering traders with next-gen Dhan Algo Trading Automation.
         </p>
-      )}
+        <p style={styles.copyright}>
+          © 2025 TradeTech Solutions. All rights reserved.
+        </p>
+      </footer>
     </div>
-
-    {/* ---------- Footer ---------- */}
-    <footer style={styles.footer}>
-      <img src="/images/image.png" alt="TradeTech Logo" style={styles.logo} />
-      <p style={styles.companyName}>TradeTech Solutions</p>
-      <p style={styles.description}>
-        Empowering traders with next-gen Dhan Algo Trading Automation.
-      </p>
-      <p style={styles.copyright}>
-        © 2025 TradeTech Solutions. All rights reserved.
-      </p>
-    </footer>
-  </div>
-);
+  );
 }
 
 // ---------- Inline Styles ----------
@@ -511,5 +611,39 @@ const styles = {
     fontSize: "11px",
     color: "#777",
     marginTop: "8px",
+  },
+};
+
+const popupStyles = {
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+  modal: {
+    backgroundColor: "#fff",
+    padding: "30px 40px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+    textAlign: "center",
+    maxWidth: "400px",
+    width: "90%",
+  },
+  button: {
+    marginTop: "20px",
+    backgroundColor: "#4CAF50",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
   },
 };

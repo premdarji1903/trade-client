@@ -18,11 +18,13 @@ export default function ClientRegistration() {
     trade: [],
     api_key: "",
     api_secret: "",
+    broker: "",
   });
 
   const [amount, setAmount] = useState(0);
 
   const tradeOptions = ["Nifty", "Natural Gas", "Crude Oil"];
+  const brokerOptions = ["dhan", "zerodha", "angle one", "paytm money"];
 
   // Function to calculate amount based on selected trades
   const calculateAmount = (selectedTrades) => {
@@ -124,7 +126,8 @@ export default function ClientRegistration() {
   // Step 1: Create client
   const handleNextStep = async (e) => {
     e.preventDefault();
-    const { clientName, mobileNumber, email, clientId, trade } = formData;
+    const { clientName, mobileNumber, email, clientId, trade, broker } =
+      formData;
 
     if (
       !clientName ||
@@ -153,6 +156,7 @@ export default function ClientRegistration() {
             clientId,
             trade,
             amount,
+            broker,
           }),
         }
       );
@@ -324,6 +328,35 @@ export default function ClientRegistration() {
               </div>
             </div>
 
+            <div>
+              <label style={{ fontSize: 14, color: "#555" }}>
+                Select Broker:
+              </label>
+
+              <select
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  marginTop: "5px",
+                  fontSize: "14px",
+                  borderRadius: "4px",
+                  border: "1px solid #ccc",
+                  color: "#333",
+                }}
+                value={formData.broker}
+                onChange={(e) =>
+                  setFormData({ ...formData, broker: e.target.value })
+                }
+              >
+                <option value="">-- Select Broker --</option>
+
+                {brokerOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
             <p
               style={{
                 color: "#1976D2",
